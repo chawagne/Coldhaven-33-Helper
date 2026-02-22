@@ -4,4 +4,5 @@ export interface HexData {
   col: number
   number: number | null
   isIntersection: boolean
+  intersectionSources: string[] | null // IDs of the 3 hexes that cause this intersection
 }

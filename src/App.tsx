@@ -16,6 +16,7 @@ function buildInitialHexes(): HexData[] {
         col,
         number: null,
         isIntersection: false,
+        intersectionSources: null,
       })
     }
   }
@@ -26,14 +27,18 @@ export default function App() {
   const [hexes, setHexes] = useState<HexData[]>(buildInitialHexes)
   const [selectedHexId, setSelectedHexId] = useState<string | null>(null)
 
-  const intersectionIds = useMemo(() => computeIntersections(hexes), [hexes])
+  const intersections = useMemo(() => computeIntersections(hexes), [hexes])
 
   const hexesWithIntersections = useMemo(() => {
-    return hexes.map((h) => ({
-      ...h,
-      isIntersection: intersectionIds.has(h.id),
-    }))
-  }, [hexes, intersectionIds])
+    return hexes.map((h) => {
+      const sources = intersections.get(h.id)
+      return {
+        ...h,
+        isIntersection: sources != null,
+        intersectionSources: sources ?? null,
+      }
+    })
+  }, [hexes, intersections])
 
   const selectedHex = hexes.find((h) => h.id === selectedHexId)
 

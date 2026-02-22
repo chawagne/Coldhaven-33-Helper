@@ -1,7 +1,6 @@
 import type { HexData } from './types'
 
 const RADIUS = 28
-const SQ3 = Math.sqrt(3)
 
 /** Pointy-top hex: point at top (angle 0 = top), flat sides left/right. */
 function getPointyHexPoints(cx: number, cy: number): string {
@@ -20,9 +19,10 @@ export interface HexCellProps {
   pixelX: number
   pixelY: number
   onSelect: (id: string) => void
+  hexesMap: Map<string, HexData>
 }
 
-export function HexCell({ hex, pixelX, pixelY, onSelect }: HexCellProps) {
+export function HexCell({ hex, pixelX, pixelY, onSelect, hexesMap }: HexCellProps) {
   const points = getPointyHexPoints(pixelX, pixelY)
   const isEmpty = hex.number == null || hex.number === 0
   const fill = hex.isIntersection
@@ -31,6 +31,14 @@ export function HexCell({ hex, pixelX, pixelY, onSelect }: HexCellProps) {
       ? 'rgb(229 231 235)' // gray-200
       : 'white'
   const stroke = hex.isIntersection ? 'rgb(22 163 74)' : 'rgb(156 163 175)'
+
+  // Get the 3 source numbers for intersection hexes
+  const sourceNumbers = hex.intersectionSources
+    ? hex.intersectionSources
+        .map((sourceId) => hexesMap.get(sourceId)?.number)
+        .filter((n): n is number => n != null && n > 0)
+        .sort((a, b) => a - b)
+    : null
 
   return (
     <g
@@ -54,6 +62,17 @@ export function HexCell({ hex, pixelX, pixelY, onSelect }: HexCellProps) {
           className="text-lg font-semibold fill-gray-900 pointer-events-none"
         >
           {hex.number}
+        </text>
+      )}
+      {hex.isIntersection && sourceNumbers && sourceNumbers.length === 3 && (
+        <text
+          x={pixelX}
+          y={pixelY}
+          textAnchor="middle"
+          dominantBaseline="central"
+          className="text-xs fill-gray-800 pointer-events-none font-semibold"
+        >
+          {sourceNumbers.join(', ')}
         </text>
       )}
     </g>

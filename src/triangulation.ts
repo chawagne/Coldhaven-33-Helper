@@ -4,8 +4,9 @@ import { computeRange, getHexesAtDistance } from './hexUtils'
 /**
  * For each numbered hex, mark all hexes at its range.
  * A hex is an "intersection" if it is covered by exactly 3 different number ranges.
+ * Returns a map of intersection hex IDs to their 3 source hex IDs.
  */
-export function computeIntersections(hexes: HexData[]): Set<string> {
+export function computeIntersections(hexes: HexData[]): Map<string, string[]> {
   const rangesMap = new Map<string, Set<string>>() // hexId -> set of source hex ids that cover it
 
   for (const hex of hexes) {
@@ -22,9 +23,11 @@ export function computeIntersections(hexes: HexData[]): Set<string> {
     }
   }
 
-  const intersectionIds = new Set<string>()
+  const intersections = new Map<string, string[]>()
   for (const [hexId, sourceIds] of rangesMap) {
-    if (sourceIds.size === 3) intersectionIds.add(hexId)
+    if (sourceIds.size === 3) {
+      intersections.set(hexId, Array.from(sourceIds))
+    }
   }
-  return intersectionIds
+  return intersections
 }

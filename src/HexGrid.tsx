@@ -50,6 +50,7 @@ export function HexGrid({ hexes, onHexSelect }: HexGridProps) {
               pixelX={x}
               pixelY={y}
               onSelect={onHexSelect}
+              hexesMap={hexMap}
             />
           )
         })
