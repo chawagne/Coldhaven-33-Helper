@@ -17,14 +17,24 @@ function hexToPixel(row: number, col: number): { x: number; y: number } {
 export interface HexGridProps {
   hexes: HexData[]
   onHexSelect: (id: string) => void
+  draggingHexId: string | null
+  onDragStart: (id: string) => void
+  onDragEnd: () => void
+  onDrop: (id: string) => void
 }
 
-export function HexGrid({ hexes, onHexSelect }: HexGridProps) {
+export function HexGrid({ hexes, onHexSelect, draggingHexId, onDragStart, onDragEnd, onDrop }: HexGridProps) {
   const hexMap = new Map(hexes.map((h) => [h.id, h]))
   const w = SQ3 * RADIUS
   const h = 1.5 * RADIUS
   const width = MAX_COLS * w + (ROWS > 1 ? w / 2 : 0) + 2 * RADIUS
   const height = ROWS * h + 2 * RADIUS
+
+  const handleSvgMouseUp = () => {
+    if (draggingHexId) {
+      onDragEnd()
+    }
+  }
 
   return (
     <svg
@@ -32,6 +42,7 @@ export function HexGrid({ hexes, onHexSelect }: HexGridProps) {
       height={height}
       className="bg-slate-100 rounded-lg shadow-lg"
       viewBox={`0 0 ${width} ${height}`}
+      onMouseUp={handleSvgMouseUp}
     >
       {Array.from({ length: ROWS }, (_, row) => {
         const cols = getColsForRow(row)
@@ -51,6 +62,10 @@ export function HexGrid({ hexes, onHexSelect }: HexGridProps) {
               pixelY={y}
               onSelect={onHexSelect}
               hexesMap={hexMap}
+              draggingHexId={draggingHexId}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              onDrop={onDrop}
             />
           )
         })

@@ -26,6 +26,7 @@ function buildInitialHexes(): HexData[] {
 export default function App() {
   const [hexes, setHexes] = useState<HexData[]>(buildInitialHexes)
   const [selectedHexId, setSelectedHexId] = useState<string | null>(null)
+  const [draggingHexId, setDraggingHexId] = useState<string | null>(null)
 
   const intersections = useMemo(() => computeIntersections(hexes), [hexes])
 
@@ -51,6 +52,50 @@ export default function App() {
     setSelectedHexId(null)
   }
 
+  const handleDragStart = (hexId: string) => {
+    const hex = hexes.find((h) => h.id === hexId)
+    if (hex && hex.number != null && hex.number > 0) {
+      setDraggingHexId(hexId)
+    }
+  }
+
+  const handleDragEnd = () => {
+    setDraggingHexId(null)
+  }
+
+  const handleDrop = (targetHexId: string) => {
+    if (!draggingHexId) {
+      return
+    }
+
+    if (draggingHexId === targetHexId) {
+      setDraggingHexId(null)
+      return
+    }
+
+    const sourceHex = hexes.find((h) => h.id === draggingHexId)
+    if (!sourceHex || sourceHex.number == null) {
+      setDraggingHexId(null)
+      return
+    }
+
+    const numberToMove = sourceHex.number
+
+    setHexes((prev) =>
+      prev.map((h) => {
+        if (h.id === draggingHexId) {
+          // Clear source hex
+          return { ...h, number: null }
+        } else if (h.id === targetHexId) {
+          // Set target hex (overwrites existing number if any)
+          return { ...h, number: numberToMove }
+        }
+        return h
+      })
+    )
+    setDraggingHexId(null)
+  }
+
   return (
     <div className="min-h-screen bg-slate-200 py-8 px-4">
       <div className="max-w-4xl mx-auto">
@@ -58,12 +103,16 @@ export default function App() {
           Hex Grid Number Triangulation
         </h1>
         <p className="text-slate-600 mb-6">
-          Click a hex to set a number (1–12). Range = ceil(N/2). Hexes covered by exactly 3 ranges turn green.
+          Click a hex to set a number (1–12). Range = ceil(N/2). Hexes covered by 3 or more ranges turn green.
         </p>
         <div className="inline-block">
           <HexGrid
             hexes={hexesWithIntersections}
             onHexSelect={setSelectedHexId}
+            draggingHexId={draggingHexId}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDrop={handleDrop}
           />
         </div>
         <NumberInputModal
