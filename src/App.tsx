@@ -1,0 +1,73 @@
+import { useState, useMemo } from 'react'
+import { HexGrid } from './HexGrid'
+import { NumberInputModal } from './NumberInputModal'
+import type { HexData } from './types'
+import { rowColToId, ROWS, getColsForRow } from './hexUtils'
+import { computeIntersections } from './triangulation'
+
+function buildInitialHexes(): HexData[] {
+  const hexes: HexData[] = []
+  for (let row = 0; row < ROWS; row++) {
+    const cols = getColsForRow(row)
+    for (let col = 0; col < cols; col++) {
+      hexes.push({
+        id: rowColToId(row, col),
+        row,
+        col,
+        number: null,
+        isIntersection: false,
+      })
+    }
+  }
+  return hexes
+}
+
+export default function App() {
+  const [hexes, setHexes] = useState<HexData[]>(buildInitialHexes)
+  const [selectedHexId, setSelectedHexId] = useState<string | null>(null)
+
+  const intersectionIds = useMemo(() => computeIntersections(hexes), [hexes])
+
+  const hexesWithIntersections = useMemo(() => {
+    return hexes.map((h) => ({
+      ...h,
+      isIntersection: intersectionIds.has(h.id),
+    }))
+  }, [hexes, intersectionIds])
+
+  const selectedHex = hexes.find((h) => h.id === selectedHexId)
+
+  const handleNumberChange = (hexId: string, value: number | null) => {
+    setHexes((prev) =>
+      prev.map((h) =>
+        h.id === hexId ? { ...h, number: value } : h
+      )
+    )
+    setSelectedHexId(null)
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-200 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold text-slate-800 mb-2">
+          Hex Grid Number Triangulation
+        </h1>
+        <p className="text-slate-600 mb-6">
+          Click a hex to set a number (1–12). Range = ceil(N/2). Hexes covered by exactly 3 ranges turn green.
+        </p>
+        <div className="inline-block">
+          <HexGrid
+            hexes={hexesWithIntersections}
+            onHexSelect={setSelectedHexId}
+          />
+        </div>
+        <NumberInputModal
+          hexId={selectedHexId}
+          currentNumber={selectedHex?.number ?? null}
+          onClose={() => setSelectedHexId(null)}
+          onSave={handleNumberChange}
+        />
+      </div>
+    </div>
+  )
+}
