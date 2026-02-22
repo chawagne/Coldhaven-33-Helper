@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/hexcell.tsx","./src/hexgrid.tsx","./src/numberinputmodal.tsx","./src/hexutils.ts","./src/main.tsx","./src/triangulation.ts","./src/types.ts","./src/vite-env.d.ts"],"errors":true,"version":"5.6.3"}
+{"root":["./src/app.tsx","./src/hexcell.tsx","./src/hexgrid.tsx","./src/numberinputmodal.tsx","./src/hexutils.ts","./src/main.tsx","./src/triangulation.ts","./src/types.ts","./src/vite-env.d.ts"],"version":"5.6.3"}
