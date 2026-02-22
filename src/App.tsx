@@ -1,9 +1,52 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { HexGrid } from './HexGrid'
 import { NumberInputModal } from './NumberInputModal'
 import type { HexData } from './types'
 import { rowColToId, ROWS, getColsForRow } from './hexUtils'
 import { computeIntersections } from './triangulation'
+
+const STORAGE_KEY = 'frosthaven-hex-grid-state'
+
+function loadHexesFromStorage(): HexData[] | null {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (!stored) return null
+    
+    const data = JSON.parse(stored)
+    if (!data || !Array.isArray(data)) return null
+    
+    // Validate that we have the right structure
+    const initialHexes = buildInitialHexes()
+    const hexMap = new Map(initialHexes.map((h) => [h.id, h]))
+    
+    // Restore numbers from stored data, preserving structure
+    return data.map((storedHex: any) => {
+      const baseHex = hexMap.get(storedHex.id)
+      if (!baseHex) return null
+      
+      return {
+        ...baseHex,
+        number: storedHex.number ?? null,
+      }
+    }).filter((h): h is HexData => h !== null)
+  } catch (error) {
+    console.warn('Failed to load hexes from localStorage:', error)
+    return null
+  }
+}
+
+function saveHexesToStorage(hexes: HexData[]): void {
+  try {
+    // Only save the essential data (id and number)
+    const dataToSave = hexes.map((h) => ({
+      id: h.id,
+      number: h.number,
+    }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
+  } catch (error) {
+    console.warn('Failed to save hexes to localStorage:', error)
+  }
+}
 
 function buildInitialHexes(): HexData[] {
   const hexes: HexData[] = []
@@ -24,9 +67,18 @@ function buildInitialHexes(): HexData[] {
 }
 
 export default function App() {
-  const [hexes, setHexes] = useState<HexData[]>(buildInitialHexes)
+  // Load initial state from localStorage or use defaults
+  const [hexes, setHexes] = useState<HexData[]>(() => {
+    const loaded = loadHexesFromStorage()
+    return loaded ?? buildInitialHexes()
+  })
   const [selectedHexId, setSelectedHexId] = useState<string | null>(null)
   const [draggingHexId, setDraggingHexId] = useState<string | null>(null)
+
+  // Save to localStorage whenever hexes changes
+  useEffect(() => {
+    saveHexesToStorage(hexes)
+  }, [hexes])
 
   const intersections = useMemo(() => computeIntersections(hexes), [hexes])
 

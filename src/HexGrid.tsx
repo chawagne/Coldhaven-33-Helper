@@ -64,7 +64,6 @@ export function HexGrid({ hexes, onHexSelect, draggingHexId, onDragStart, onDrag
               hexesMap={hexMap}
               draggingHexId={draggingHexId}
               onDragStart={onDragStart}
-              onDragEnd={onDragEnd}
               onDrop={onDrop}
             />
           )

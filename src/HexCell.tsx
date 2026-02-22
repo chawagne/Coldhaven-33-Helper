@@ -22,7 +22,6 @@ export interface HexCellProps {
   hexesMap: Map<string, HexData>
   draggingHexId: string | null
   onDragStart: (id: string) => void
-  onDragEnd: () => void
   onDrop: (id: string) => void
 }
 
@@ -34,7 +33,6 @@ export function HexCell({
   hexesMap,
   draggingHexId,
   onDragStart,
-  onDragEnd,
   onDrop
 }: HexCellProps) {
   const points = getPointyHexPoints(pixelX, pixelY)
