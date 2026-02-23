@@ -27,8 +27,8 @@ export function HexGrid({ hexes, onHexSelect, draggingHexId, onDragStart, onDrag
   const hexMap = new Map(hexes.map((h) => [h.id, h]))
   const w = SQ3 * RADIUS
   const h = 1.5 * RADIUS
-  const width = MAX_COLS * w + (ROWS > 1 ? w / 2 : 0) + 2 * RADIUS
-  const height = ROWS * h + 2 * RADIUS
+  const width = MAX_COLS * w + (RADIUS * .3)
+  const height = ROWS * h + (RADIUS * .6)
 
   const handleSvgMouseUp = () => {
     if (draggingHexId) {

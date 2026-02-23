@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.intersection-text {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
+  .marquee-track {
+    display: inline-block;
+  }
+  
+  .intersection-text:hover .marquee-track {
+    animation: marquee 2s linear infinite;
+    will-change: transform;
+  }
+  
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }

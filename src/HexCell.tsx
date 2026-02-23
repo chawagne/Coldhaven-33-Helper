@@ -113,17 +113,36 @@ export function HexCell({
           {hex.number}
         </text>
       )}
-      {hex.isIntersection && sourceNumbers && sourceNumbers.length >= 3 && (
-        <text
-          x={pixelX}
-          y={pixelY}
-          textAnchor="middle"
-          dominantBaseline="central"
-          className="text-xs fill-gray-800 pointer-events-none font-semibold"
+    {hex.isIntersection && sourceNumbers && sourceNumbers.length >= 3 && (
+      <foreignObject
+        x={pixelX - RADIUS * 0.75}
+        y={pixelY - 10}
+        width={RADIUS * 1.5}
+        height={20}
+      >
+        <div
+          className="intersection-text"
+          style={{
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            fontSize: '12px',
+            fontWeight: 600,
+            textAlign: 'center',
+            lineHeight: '20px',
+            cursor: 'default'
+          }}
         >
-          {sourceNumbers.join(', ')}
-        </text>
-      )}
+          <span className="marquee-track">
+          {sourceNumbers.join(', ')}&nbsp;&nbsp;&nbsp;&nbsp;
+          {sourceNumbers.join(', ')}&nbsp;&nbsp;&nbsp;&nbsp;
+          </span>
+          
+        </div>
+      </foreignObject>
+    )}
     </g>
   )
 }
